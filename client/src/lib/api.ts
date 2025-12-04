@@ -8,7 +8,7 @@ import axios, { AxiosInstance } from 'axios';
 
 // Create axios instance with base URL
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://rsa-app.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
