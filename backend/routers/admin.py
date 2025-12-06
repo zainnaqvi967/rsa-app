@@ -366,3 +366,41 @@ def list_jobs(
     
     return result
 
+
+@router.patch("/users/{user_id}/role")
+def change_user_role(
+    user_id: int,
+    new_role: str = Query(..., description="New role: customer, provider, or admin"),
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    Change a user's role (admin only).
+    
+    Args:
+        user_id: User ID to update
+        new_role: New role (customer, provider, admin)
+        current_admin: Authenticated admin user
+        db: Database session
+    
+    Returns:
+        Updated user information
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    try:
+        user.role = UserRole(new_role)
+        db.commit()
+        db.refresh(user)
+        return {"message": f"User role updated to {new_role}", "user": UserListItem.model_validate(user)}
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid role. Must be one of: customer, provider, admin"
+        )
